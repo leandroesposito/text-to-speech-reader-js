@@ -4,6 +4,7 @@ const ttsRate = document.querySelector("#rate");
 const progressBar = document.querySelector("#progress");
 
 let voices = [];
+let speaking = false;
 
 const voicesCombobox = document.querySelector("#voices");
 voicesCombobox.onchange = _ => {
@@ -34,8 +35,8 @@ function onboundaryHandler(event){
     textarea.selectionEnd = end;
 
     const progress = Math.floor(start / text.length * 100);
-
-    progressBar.style.backgroundColor = "var(--light-orange)";
+    if (speaking)
+        progressBar.style.backgroundColor = "var(--light-orange)";
     progressBar.style.width = "" + progress + "%";
     progressBar.innerText = "" + progress + "%";
 };
@@ -49,9 +50,17 @@ function speak(text){
     utterance.volume = ttsVolume.value / 10;
     utterance.rate = ttsRate.value;
     utterance.onboundary = onboundaryHandler;
+    utterance.onstart = _ => {
+        speaking = true;
+    }
+    utterance.onresume = _ => {
+        speaking = true;
+    }
     utterance.onpause = _ => {
         progressBar.style.backgroundColor = "var(--light-yellow)";
+        speaking = false;
     }
+    utterance.onboundary = onboundaryHandler;
     utterance.onend = event => {
         // check if complete, else means speak got cancelled
         if(event.charIndex == event.utterance.text.length){
@@ -62,6 +71,7 @@ function speak(text){
         else{
             progressBar.innerText = "";
         }
+        speaking = false;
     }
     utterance.oncancel = _ => {
         progressBar.innerText = "";
