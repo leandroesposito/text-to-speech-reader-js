@@ -62,7 +62,6 @@ function speak(text){
         progressBar.style.backgroundColor = "var(--light-yellow)";
         speaking = false;
     }
-    utterance.onboundary = onboundaryHandler;
     utterance.onend = event => {
         // check if complete, else means speak got cancelled
         if(event.charIndex == event.utterance.text.length){
