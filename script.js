@@ -6,6 +6,8 @@ const progressBar = document.querySelector("#progress");
 let voices = [];
 let speaking = false;
 
+let start_index = 0;
+
 const voicesCombobox = document.querySelector("#voices");
 voicesCombobox.onchange = _ => {
     if (synth.speaking){
@@ -22,7 +24,7 @@ voicesCombobox.onchange = _ => {
 
 function onboundaryHandler(event){
     const text = textarea.value;
-    const start = event.charIndex;
+    const start = event.charIndex + start_index;
     let end = start + text.slice(start).search(/\s/);
 
     if (end == start - 1){
@@ -67,9 +69,15 @@ function speak(text){
             progressBar.innerText = "100%";
             progressBar.style.width = "100%";
             progressBar.style.backgroundColor = "var(--orange)";
+            // move carret to end
+            textarea.selectionStart = textarea.value.length;
+            textarea.selectionEnd = textarea.value.length;
         }
         else{
             progressBar.innerText = "";
+            // on [stop] move carret to 0
+            textarea.selectionStart = 0;
+            textarea.selectionEnd = 0;
         }
         speaking = false;
     }
@@ -100,7 +108,10 @@ function loadVoices(){
 const btnPlay = document.querySelector("#btnPlay");
 
 btnPlay.addEventListener("click", _ => {
-    speak(textarea.value);
+    // if carret is at end of textbox, move to 0
+    // else start from carret
+    start_index = textarea.selectionStart < textarea.value.length ? textarea.selectionStart : 0;
+    speak(textarea.value.slice(start_index));
 })
 
 const btnPauseResume = document.querySelector("#btnPauseResume");
